@@ -1,3 +1,26 @@
+# Riesgo crediticio · Pipeline de ML
+
+Proyecto académico Henry M5 de preparación de datos, entrenamiento y servicio de predicciones.
+
+**Para revisar:** `mlops_pipeline/src, run_api_test.py, requirements.txt`.
+
+**Contexto:** Antes de servir predicciones se necesitan el modelo y el preprocesador generados con los datos originales. No usar para decisiones crediticias reales sin validación adicional.
+
+## Inicio
+
+Desde la raíz del repositorio, en un entorno virtual con sus datos disponibles:
+
+```bash
+python -m pip install -r requirements.txt
+python -m uvicorn mlops_pipeline.src.model_deploy:app --host 127.0.0.1 --port 8080
+```
+
+Consulta [el caso de proyecto](docs/PORTFOLIO_CASE.md) para el alcance y los criterios de revisión.
+
+---
+
+## Documentación detallada existente
+
 # 📘 MLOps Pipeline: Sistema Integral de Predicción de Riesgo Crediticio
 
 **Proyecto Integrador M5 - Dody Salim Dueñas Remache**

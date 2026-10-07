@@ -4,6 +4,7 @@ from typing import List, Dict, Any
 import pandas as pd
 import joblib
 from pathlib import Path
+from mlops_pipeline.src.project_paths import MODEL_DIR
 
 # Configuración de FastAPI
 app = FastAPI(
@@ -13,10 +14,6 @@ app = FastAPI(
 )
 
 # Cargar los modelos al iniciar la aplicación
-MODEL_DIR = Path("models")
-if not MODEL_DIR.exists():
-    # If run from src/
-    MODEL_DIR = Path("../../models")
 
 model_path = MODEL_DIR / "modelo_final.pkl"
 preprocessor_path = MODEL_DIR / "preprocesador.pkl"
@@ -69,7 +66,7 @@ def predict(clientes: List[ClientData]):
     Recibe una lista de clientes (Batch) y devuelve las predicciones.
     """
     if model is None or preprocessor is None:
-        raise HTTPException(status_code=500, detail="Los modelos no están cargados en el servidor.")
+        raise HTTPException(status_code=503, detail="Los modelos no están cargados en el servidor.")
         
     try:
         # Convertir datos de entrada a DataFrame (Batch)

@@ -4,16 +4,12 @@ import joblib
 from sklearn.ensemble import RandomForestClassifier
 from mlops_pipeline.src.ft_engineering import cargar_datos, feature_engineering
 import platform
+from mlops_pipeline.src.project_paths import MODEL_DIR, DATA_FILE
 
 def train_and_save():
     print("Iniciando carga de datos...")
     
-    # Try different paths depending on where it's run from
-    ruta_db = Path("Base_de_datos.xlsx")
-    if not ruta_db.exists():
-        ruta_db = Path("../../Base_de_datos.xlsx")
-
-    df = cargar_datos(ruta_db)
+    df = cargar_datos(DATA_FILE)
     
     print("Ejecutando ingeniería de características...")
     X_train, X_test, y_train, y_test, preprocessor = feature_engineering(df)
@@ -26,8 +22,8 @@ def train_and_save():
     
     print("Guardando el modelo y preprocesador...")
     # Creamos un directorio de modelos
-    model_dir = Path("models")
-    model_dir.mkdir(exist_ok=True)
+    model_dir = MODEL_DIR
+    model_dir.mkdir(parents=True, exist_ok=True)
     
     joblib.dump(model, model_dir / "modelo_final.pkl")
     joblib.dump(preprocessor, model_dir / "preprocesador.pkl")
