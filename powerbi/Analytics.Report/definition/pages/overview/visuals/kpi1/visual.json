@@ -153,10 +153,10 @@
                       "Entity": "Analytics"
                     }
                   },
-                  "Property": "Capital"
+                  "Property": "KPI_Capital"
                 }
               },
-              "queryRef": "Analytics.Capital",
+              "queryRef": "Analytics.KPI_Capital",
               "nativeQueryRef": "Capital",
               "displayName": "Capital",
               "format": "#,0"

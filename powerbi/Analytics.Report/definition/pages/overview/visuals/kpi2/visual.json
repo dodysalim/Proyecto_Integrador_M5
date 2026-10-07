@@ -153,10 +153,10 @@
                       "Entity": "Analytics"
                     }
                   },
-                  "Property": "TasaPagoATiempo"
+                  "Property": "KPI_TasaPagoATiempo"
                 }
               },
-              "queryRef": "Analytics.TasaPagoATiempo",
+              "queryRef": "Analytics.KPI_TasaPagoATiempo",
               "nativeQueryRef": "TasaPagoATiempo",
               "displayName": "TasaPagoATiempo",
               "format": "#,0"

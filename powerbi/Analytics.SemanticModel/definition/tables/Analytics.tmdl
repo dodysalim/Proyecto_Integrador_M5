@@ -30,15 +30,15 @@ table Analytics
 		summarizeBy: none
 		sourceColumn: SaldoMora
 
-	measure Creditos = SUM(Analytics[Creditos])
+	measure KPI_Creditos = SUM(Analytics[Creditos])
 		formatString: #,0.00
 		displayFolder: KPIs
 
-	measure Capital = SUM(Analytics[Capital])
+	measure KPI_Capital = SUM(Analytics[Capital])
 		formatString: #,0.00
 		displayFolder: KPIs
 
-	measure TasaPagoATiempo = DIVIDE(CALCULATE(SUM(Analytics[Creditos]), Analytics[PagoATiempo] = 1), SUM(Analytics[Creditos]))
+	measure KPI_TasaPagoATiempo = DIVIDE(CALCULATE(SUM(Analytics[Creditos]), Analytics[PagoATiempo] = 1), SUM(Analytics[Creditos]))
 		formatString: #,0.00
 		displayFolder: KPIs
 

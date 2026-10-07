@@ -153,10 +153,10 @@
                       "Entity": "Analytics"
                     }
                   },
-                  "Property": "Creditos"
+                  "Property": "KPI_Creditos"
                 }
               },
-              "queryRef": "Analytics.Creditos",
+              "queryRef": "Analytics.KPI_Creditos",
               "nativeQueryRef": "Creditos",
               "displayName": "Creditos",
               "format": "#,0"
