@@ -154,7 +154,7 @@ def test_save_model_main_logic(tmp_path, monkeypatch):
     import mlops_pipeline.src.save_model as sm
     monkeypatch.setattr(sm, "cargar_datos", lambda x: df_dummy)
     
-    train_and_save()
+    train_and_save(model_dir=tmp_path / "models")
     assert (tmp_path / "models" / "modelo_final.pkl").exists()
 
 def test_dashboard_load_data_logic(monkeypatch):

@@ -6,10 +6,10 @@ from mlops_pipeline.src.ft_engineering import cargar_datos, feature_engineering
 import platform
 from mlops_pipeline.src.project_paths import MODEL_DIR, DATA_FILE
 
-def train_and_save():
+def train_and_save(data_file=None, model_dir=None):
     print("Iniciando carga de datos...")
     
-    df = cargar_datos(DATA_FILE)
+    df = cargar_datos(Path(data_file) if data_file is not None else DATA_FILE)
     
     print("Ejecutando ingeniería de características...")
     X_train, X_test, y_train, y_test, preprocessor = feature_engineering(df)
@@ -22,7 +22,7 @@ def train_and_save():
     
     print("Guardando el modelo y preprocesador...")
     # Creamos un directorio de modelos
-    model_dir = MODEL_DIR
+    model_dir = Path(model_dir) if model_dir is not None else MODEL_DIR
     model_dir.mkdir(parents=True, exist_ok=True)
     
     joblib.dump(model, model_dir / "modelo_final.pkl")
