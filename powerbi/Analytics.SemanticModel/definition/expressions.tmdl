@@ -1,0 +1,3 @@
+expression DataFolder = "C:\Data\Proyecto_Integrador_M5\powerbi\data\" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	annotation PBI_ResultType = Text
+	kind: m
