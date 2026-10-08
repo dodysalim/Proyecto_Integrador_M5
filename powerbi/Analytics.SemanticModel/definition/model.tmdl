@@ -3,5 +3,9 @@ model Model
 	defaultPowerBIDataSourceVersion: powerBI_V3
 	sourceQueryCulture: en-US
 
-ref table Analytics
+ref table Creditos
+ref table DriftNumerico
+ref table DriftCategorico
+ref table Distribuciones
+ref table Correlaciones
 ref expression DataFolder

@@ -1,0 +1,40 @@
+table Distribuciones
+
+	column 'Variable'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Variable
+
+	column 'Dataset'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Dataset
+
+	column 'Intervalo'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: Intervalo
+
+	column 'Conteo'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: Conteo
+
+	column 'Proporcion'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: Proporcion
+
+	measure KPI_Proporcion = SUM(Distribuciones[Proporcion])
+		formatString: #,0.00
+		displayFolder: Indicadores
+
+	partition Distribuciones = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "Distribuciones.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"Variable", type text}, {"Dataset", type text}, {"Intervalo", type number}, {"Conteo", type number}, {"Proporcion", type number}}, "en-US")
+				in
+				    Typed

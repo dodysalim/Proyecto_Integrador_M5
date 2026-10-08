@@ -1,0 +1,48 @@
+table DriftNumerico
+
+	column 'Variable'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Variable
+
+	column 'KS'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: KS
+
+	column 'PValue'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: PValue
+
+	column 'PSI'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: PSI
+
+	column 'Alerta'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: Alerta
+
+	measure KPI_PSI = MAX(DriftNumerico[PSI])
+		formatString: #,0.00
+		displayFolder: Indicadores
+
+	measure KPI_KS = MAX(DriftNumerico[KS])
+		formatString: #,0.00
+		displayFolder: Indicadores
+
+	measure KPI_Alertas = SUM(DriftNumerico[Alerta])
+		formatString: #,0.00
+		displayFolder: Indicadores
+
+	partition DriftNumerico = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "DriftNumerico.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"Variable", type text}, {"KS", type number}, {"PValue", type number}, {"PSI", type number}, {"Alerta", type number}}, "en-US")
+				in
+				    Typed
