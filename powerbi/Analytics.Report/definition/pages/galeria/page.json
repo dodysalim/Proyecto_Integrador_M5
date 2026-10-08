@@ -2,9 +2,9 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
   "name": "galeria",
   "displayName": "04 · Galería y comparaciones",
-  "displayOption": "FitToPage",
-  "height": 1040,
-  "width": 1280,
+  "displayOption": "ActualSize",
+  "height": 794,
+  "width": 1123,
   "objects": {
     "background": [
       {
