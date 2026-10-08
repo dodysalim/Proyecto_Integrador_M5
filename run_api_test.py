@@ -24,7 +24,6 @@ payload = [
         "salario_cliente": 4500.0,
         "total_otros_prestamos": 0.0,
         "cuota_pactada": 500.0,
-        "puntaje": 80.0,
         "puntaje_datacredito": 850.0,
         "cant_creditosvigentes": 1.0,
         "huella_consulta": 1.0,

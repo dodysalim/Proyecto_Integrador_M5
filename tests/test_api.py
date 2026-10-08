@@ -21,7 +21,6 @@ def test_predict_endpoint_success():
             "salario_cliente": 2500.0,
             "total_otros_prestamos": 1000.0,
             "cuota_pactada": 250.0,
-            "puntaje": 75.0,
             "puntaje_datacredito": 750.0,
             "cant_creditosvigentes": 1.0,
             "huella_consulta": 0.0,

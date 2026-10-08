@@ -49,7 +49,9 @@ def feature_engineering(df, target_col='Pago_atiempo'):
     # Eliminar columnas que no se usarán o son identificadores/fechas complejas para este alcance
     # 'fecha_prestamo' se podría usar para extraer mes/año, pero por simplicidad inicial la excluimos o tratamos numéricamente si convertimos.
     # Vamos a excluirla para evitar errores simples, o convertirla a timestamp. Mejor excluirla por ahora.
-    cols_to_drop = ['fecha_prestamo']
+    # 'puntaje' se excluye por FUGA DE DATOS: por sí sola separa perfectamente el target
+    # (AUC = 1.00), lo que indica que se calcula a partir del resultado del pago.
+    cols_to_drop = ['fecha_prestamo', 'puntaje']
     X = X.drop(columns=[c for c in cols_to_drop if c in X.columns])
 
     # 2. Definición de Tipos de Variables

@@ -36,7 +36,6 @@ class ClientData(BaseModel):
     salario_cliente: float = Field(..., description="Salario del cliente")
     total_otros_prestamos: float = Field(..., description="Total en otros préstamos")
     cuota_pactada: float = Field(..., description="Cuota mensual pactada")
-    puntaje: float = Field(..., description="Puntaje crediticio interno")
     puntaje_datacredito: float = Field(..., description="Puntaje de bureau (DataCrédito)")
     cant_creditosvigentes: float = Field(..., description="Cantidad de créditos vigentes")
     huella_consulta: float = Field(..., description="Número de consultas recientes")

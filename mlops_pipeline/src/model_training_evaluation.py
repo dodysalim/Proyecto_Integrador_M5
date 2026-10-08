@@ -78,7 +78,8 @@ def main():
     print("\n" + metrics_df.to_string(index=False))
     
     # Elegir el mejor modelo basado en F1-Score (balance entre Precision y Recall)
-    best_model_name = metrics_df.loc[metrics_df['F1-Score'].idxmax()]['Modelo']
+    # Con 95% de pagadores, el F1 de la clase 1 es casi siempre alto: se elige por ROC-AUC
+    best_model_name = metrics_df.loc[metrics_df['ROC-AUC'].idxmax()]['Modelo']
     best_model = trained_models[best_model_name]
     
     print("\n==================================================")

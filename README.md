@@ -59,7 +59,7 @@ Este proyecto presenta una solución **End-to-End de MLOps** diseñada para abor
 
 El sistema es capaz de:
 1.  Ingestar y procesar datos crudos de clientes financieros.
-2.  Predecir con alta precisión la probabilidad de que un cliente pague a tiempo (`Pago_atiempo`).
+2.  Estimar la probabilidad de que un cliente pague a tiempo (`Pago_atiempo`) y priorizar a los clientes con mayor riesgo de impago.
 3.  Monitorear en tiempo real la salud del modelo, detectando **Data Drift** (degradación de datos) y **Concept Drift** (cambios en patrones de comportamiento).
 4.  Visualizar métricas clave a través de un dashboard interactivo profesional.
 
@@ -143,16 +143,21 @@ El sistema sigue una arquitectura modular:
 En esta fase inicial, se realizó una inmersión profunda en los datos para entender su naturaleza y calidad.
 
 ### 4.1 Análisis Univariado
-*   **Distribución de Target**: Se observó un desbalance de clases (aprox 70% pagadores vs 30% morosos). Esto dictó la necesidad de usar métricas como F1-Score y AUC en lugar de solo Accuracy.
-*   **Outliers**: Variables como `ingresos_anuales` presentaron valores atípicos significativos (cola derecha larga), lo que justificó el uso de imputación por mediana (robusta a outliers) en lugar de media.
+*   **Dataset**: 10,763 créditos y 23 variables (préstamos entre nov. 2024 y abr. 2026), sin filas duplicadas.
+*   **Distribución del target**: desbalance fuerte, **95.3% paga a tiempo y solo 4.7% no paga**. Por eso el Accuracy no sirve como métrica principal (predecir "todos pagan" ya da 95%) y se evalúan ROC-AUC y el Recall de la clase impago.
+*   **Outliers**: `salario_cliente` y `promedio_ingresos_datacredito` tienen colas derechas muy largas (mediana de salario ≈ 3 millones y máximo de 22 mil millones), lo que justifica imputar con la mediana.
 
 ### 4.2 Análisis Bivariado
-*   **Correlaciones**: Se identificó una fuerte correlación negativa entre `tasa_interes` y `Pago_atiempo` (a mayor tasa, mayor riesgo de impago, lo cual es contraintuitivo o sugiere perfiles de alto riesgo).
-*   **Relación Edad-Pago**: Los clientes más jóvenes mostraron una ligera tendencia mayor al impago.
+*   **Edad**: los clientes de 18 a 30 años tienen la mayor tasa de impago (7.1%), frente a 3.7% en los mayores de 45.
+*   **Tipo laboral**: los independientes no pagan a tiempo con más frecuencia (5.5%) que los empleados (4.3%).
+*   **Tendencia de ingresos**: con ingresos decrecientes el impago sube a 6.3%, frente a 3.9% con ingresos crecientes.
 
 ### 4.3 Calidad de Datos
-*   **Valores Nulos**: Se detectaron valores faltantes en `nivel_educativo` y `ingresos`. Se optó por estrategias de imputación: "Desconocido" para categóricas y Mediana para numéricas.
-*   **Inconsistencias**: Se limpiaron registros duplicados basados en `id_cliente`.
+*   **Valores nulos**: `promedio_ingresos_datacredito` y `tendencia_ingresos` (~27%), `saldo_mora_codeudor` (590), `saldo_principal` (405), `saldo_mora` y `saldo_total` (156). Se imputa con la mediana (numéricas) y con la moda o una categoría constante (categóricas).
+*   **Inconsistencias**: `tendencia_ingresos` mezcla categorías de texto con valores numéricos sueltos; se trata como variable ordinal y los valores no reconocidos se codifican como desconocidos.
+
+### 4.4 ⚠️ Hallazgo clave: fuga de datos en `puntaje`
+La primera versión del modelo obtenía **Accuracy y AUC de 1.00**. Al analizar cada variable por separado, `puntaje` sola separaba perfectamente las clases (AUC = 1.00): todos los clientes que no pagaron tienen `puntaje` ≤ 62.7 y todos los que pagaron, ≥ 63.8. Eso indica que el puntaje se calcula **a partir del resultado del pago**, así que no estaría disponible al momento de otorgar el crédito. Se excluyó del modelo y de la API.
 
 ---
 
@@ -170,13 +175,21 @@ Se construyó un `ColumnTransformer` robusto:
 Se entrenaron y compararon tres familias de algoritmos:
 1.  **Regresión Logística**: Modelo lineal base, altamente interpretable.
 2.  **Árboles de Decisión**: Capta relaciones no lineales pero tiende al sobreajuste.
-3.  **Random Forest / Ensemble**: Modelo robusto que reduce varianza mediante el promedio de múltiples árboles. Fue seleccionado como el **Modelo Campeón** por su estabilidad y rendimiento general.
+3.  **Random Forest**: Modelo robusto que reduce varianza mediante el promedio de múltiples árboles.
 
-### 5.3 Evaluación de Desempeño
-El modelo final alcanzó métricas satisfactorias para el negocio:
-*   **Accuracy**: ~85% (Capacidad global de acierto).
-*   **Recall (Clase 0)**: Priorizado para detectar la mayor cantidad de fraudes/impagos posibles.
-*   **AUC-ROC**: 0.88 (Excelente capacidad de discriminación entre clases).
+Los tres modelos se entrenan con `class_weight='balanced'` para compensar el desbalance de clases.
+
+### 5.3 Evaluación de Desempeño (set de prueba: 2,153 créditos, 102 impagos)
+
+| Modelo | ROC-AUC | Recall impago | Precision impago | Accuracy |
+|---|---|---|---|---|
+| **Regresión Logística** (modelo en producción) | **0.653** | **0.56** | 0.07 | 0.64 |
+| Árbol de Decisión | 0.629 | 0.66 | 0.07 | 0.56 |
+| Random Forest | 0.656 | 0.07 | 0.22 | 0.94 |
+
+*   **Lectura honesta**: sin la variable con fuga, la capacidad predictiva es **modesta (AUC ≈ 0.65)**. Las variables disponibles explican solo una parte del riesgo de impago.
+*   **Modelo elegido**: la **Regresión Logística** tiene un AUC casi igual al del Random Forest, pero detecta el 56% de los impagos (frente a 7% del Random Forest con umbral 0.5) y es interpretable. Por eso es el modelo que sirve la API (`save_model.py`).
+*   **Próximos pasos**: ajustar el umbral de decisión según el costo de un impago frente al de rechazar a un buen cliente, y sumar variables de comportamiento de pago previas al crédito.
 
 ---
 
