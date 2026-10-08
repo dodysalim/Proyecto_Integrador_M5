@@ -1,0 +1,369 @@
+# Documentación anterior
+
+Archivo histórico conservado para mantener contexto y atribución. Sus cifras, enlaces y afirmaciones no sustituyen el estado de validación del README actual. Los enlaces relativos se interpretaban desde la raíz del repositorio.
+
+# Riesgo crediticio · Pipeline de ML
+
+Proyecto académico Henry M5 de preparación de datos, entrenamiento y servicio de predicciones.
+
+**Para revisar:** `mlops_pipeline/src, run_api_test.py, requirements.txt`.
+
+**Contexto:** Antes de servir predicciones se necesitan el modelo y el preprocesador generados con los datos originales. No usar para decisiones crediticias reales sin validación adicional.
+
+## Inicio
+
+Desde la raíz del repositorio, en un entorno virtual con sus datos disponibles:
+
+```bash
+python -m pip install -r requirements.txt
+python -m uvicorn mlops_pipeline.src.model_deploy:app --host 127.0.0.1 --port 8080
+```
+
+Consulta [el caso de proyecto](docs/PORTFOLIO_CASE.md) para el alcance y los criterios de revisión.
+
+---
+
+## Documentación detallada existente
+
+# 📘 MLOps Pipeline: Sistema Integral de Predicción de Riesgo Crediticio
+
+**Proyecto Integrador M5 - Dody Salim Dueñas Remache**
+
+---
+
+## 📋 Tabla de Contenidos
+
+1.  [Resumen Ejecutivo](#1-resumen-ejecutivo)
+2.  [Contexto y Problema de Negocio](#2-contexto-y-problema-de-negocio)
+3.  [Arquitectura de Datos](#3-arquitectura-de-datos)
+    *   [3.1 Diccionario de Datos](#31-diccionario-de-datos)
+    *   [3.2 Flujo del Pipeline](#32-flujo-del-pipeline)
+    *   [3.3 Estructura del Proyecto](#33-estructura-del-proyecto)
+4.  [Metodología: Avance 1 (Análisis Exploratorio de Datos)](#4-metodología-avance-1-análisis-exploratorio-de-datos)
+    *   [4.1 Análisis Univariado](#41-análisis-univariado)
+    *   [4.2 Análisis Bivariado](#42-análisis-bivariado)
+    *   [4.3 Calidad de Datos](#43-calidad-de-datos)
+5.  [Metodología: Avance 2 (Ingeniería de Características y Modelado)](#5-metodología-avance-2-ingeniería-de-características-y-modelado)
+    *   [5.1 Pipeline de Preprocesamiento](#51-pipeline-de-preprocesamiento)
+    *   [5.2 Selección de Modelos](#52-selección-de-modelos)
+    *   [5.3 Evaluación de Desempeño](#53-evaluación-de-desempeño)
+6.  [Metodología: Avance 3 (Monitoreo y MLOps)](#6-metodología-avance-3-monitoreo-y-mlops)
+    *   [6.1 Teoría de Detección de Drift](#61-teoría-de-detección-de-drift)
+    *   [6.2 Dashboard de Monitoreo (Streamlit)](#62-dashboard-de-monitoreo-streamlit)
+    *   [6.3 Interpretación de Gráficos Avanzados](#63-interpretación-de-gráficos-avanzados)
+7.  [Manual de Instalación y Uso](#7-manual-de-instalación-y-uso)
+8.  [Conclusiones y Trabajo Futuro](#8-conclusiones-y-trabajo-futuro)
+9.  [Autores y Créditos](#9-autores-y-créditos)
+
+---
+
+## 1. Resumen Ejecutivo
+
+Este proyecto presenta una solución **End-to-End de MLOps** diseñada para abordar el desafío de la predicción de riesgo crediticio en una institución financiera. La solución no solo incluye el desarrollo de modelos predictivos de alto rendimiento, sino que integra un pipeline robusto de ingeniería de datos y un sistema de monitoreo continuo en producción.
+
+El sistema es capaz de:
+1.  Ingestar y procesar datos crudos de clientes financieros.
+2.  Estimar la probabilidad de que un cliente pague a tiempo (`Pago_atiempo`) y priorizar a los clientes con mayor riesgo de impago.
+3.  Monitorear en tiempo real la salud del modelo, detectando **Data Drift** (degradación de datos) y **Concept Drift** (cambios en patrones de comportamiento).
+4.  Visualizar métricas clave a través de un dashboard interactivo profesional.
+
+---
+
+## 2. Contexto y Problema de Negocio
+
+### El Desafío
+En el sector financiero, la capacidad de distinguir entre un "buen pagador" y un "mal pagador" es crítica.
+*   **Falsos Negativos (Riesgo)**: Clasificar a un mal pagador como bueno resulta en pérdida directa de capital (Default).
+*   **Falsos Positivos (Costo de Oportunidad)**: Clasificar a un buen pagador como malo resulta en pérdida de ingresos por intereses y clientes insatisfechos.
+
+### La Solución Propuesta
+Desarrollar un modelo de clasificación binaria (`1`: Paga a tiempo, `0`: No paga a tiempo) que optimice el equilibrio entre precisión y exhaustividad (Recall), priorizando la identificación correcta de los casos de riesgo.
+
+Además, dado que el entorno económico es cambiante, el modelo no puede ser estático. Se requiere un sistema de **Monitoreo Continuo (Drift Detection)** para alertar cuando los datos de entrada (distribución de salarios, edades, montos de préstamos) cambien significativamente respecto a los datos con los que el modelo fue entrenado.
+
+---
+
+## 3. Arquitectura de Datos
+
+### 3.1 Diccionario de Datos
+
+El dataset utilizado contiene información demográfica, financiera y comportamental de los clientes.
+
+| Variable | Tipo | Descripción | Tratamiento en Pipeline |
+| :--- | :--- | :--- | :--- |
+| `id_cliente` | Texto | Identificador único del cliente. | **Excluido** del modelado y monitoreo. |
+| `fecha_prestamo` | Fecha/Texto | Fecha de otorgamiento del crédito. | **Excluido** del monitoreo de drift para evitar ruido. |
+| `edad` | Numérico | Edad del cliente en años. | Imputación (Mediana) + Escalado Estándar. |
+| `ingresos_anuales` | Numérico | Ingresos totales anuales del cliente. | Imputación (Mediana) + Escalado Estándar. |
+| `monto_prestamo` | Numérico | Monto total solicitado. | Imputación (Mediana) + Escalado Estándar. |
+| `tasa_interes` | Numérico | Tasa de interés aplicada al préstamo. | Imputación (Mediana) + Escalado Estándar. |
+| `estado_civil` | Categórico | Estado civil (Soltero, Casado, Divorciado, etc.). | Imputación (Constante) + One-Hot Encoding. |
+| `nivel_educativo` | Categórico | Nivel máximo de estudios alcanzado. | Imputación (Constante) + One-Hot Encoding. |
+| `tendencia_ingresos` | Ordinal | Comportamiento de ingresos (Creciente, Estable, Decreciente). | Encoding Ordinal (0, 1, 2...). |
+| `Pago_atiempo` | Binario (**Target**) | `1`: Cliente pagó a tiempo. `0`: Cliente incurrió en mora. | Variable objetivo para entrenamiento supervisado. |
+
+### 3.2 Flujo del Pipeline
+
+El sistema sigue una arquitectura modular:
+
+1.  **Ingesta**: Carga de datos desde `Base_de_datos.xlsx`.
+2.  **Split Estratificado**: División `80/20` manteniendo la proporción de la clase objetivo (`Pago_atiempo`).
+3.  **Feature Engineering (`ft_engineering.py`)**:
+    *   Pipelines diferenciados para numéricas y categóricas.
+    *   Uso de `ColumnTransformer` (sklearn) y `feature-engine`.
+4.  **Modelado (`model_training.ipynb`)**:
+    *   Entrenamiento de múltiples algoritmos.
+    *   Selección del campeón.
+5.  **Monitoreo (`app.py`, `model_monitoring.py`)**:
+    *   Comparación estadística entre `Train Set` (Referencia) y `Production/Test Data` (Actual).
+    *   Cálculo de métricas de desviación.
+
+### 3.3 Estructura del Proyecto
+
+```bash
+├── mlops_pipeline/             # Carpeta principal del pipeline de MLOps.
+│   ├── __init__.py             # Marcador de paquete para resolución de rutas.
+│   └── src/                    # Código fuente del sistema.
+│       ├── __init__.py         # Marcador de paquete secundario.
+│       ├── Cargar_datos.ipynb          # Cuaderno para la ingesta y preparación inicial de datos.
+│       ├── comprension_eda.ipynb       # Análisis Exploratorio de Datos (EDA) detallado y visualizaciones.
+│       ├── model_training.ipynb        # Laboratorio de experimentación y entrenamiento de modelos.
+│       ├── ft_engineering.py           # [CORE] Pipeline de transformación (imputación, scaling, encoding).
+│       ├── model_training_evaluation.py # Script para el entrenamiento masivo y evaluación de modelos.
+│       ├── model_deploy.py             # Lógica para el despliegue de la API REST con FastAPI.
+│       ├── model_monitoring.py         # [MLOPS] Motor estadístico para detección de Data y Concept Drift.
+│       ├── save_model.py               # Utilidad para entrenar y persistir el modelo final (.pkl).
+│       └── app.py                      # [UI] Interface de usuario (Dashboard) profesional en Streamlit.
+├── Base_de_datos.xlsx          # Dataset fuente principal en formato Excel.
+├── requirements.txt            # Lista de dependencias y librerías necesarias.
+├── .gitignore                  # Definición de archivos y carpetas excluidos de Git.
+└── README.md                   # Documentación técnica completa del proyecto.
+```
+
+---
+
+## 4. Metodología: Avance 1 (Análisis Exploratorio de Datos)
+
+En esta fase inicial, se realizó una inmersión profunda en los datos para entender su naturaleza y calidad.
+
+### 4.1 Análisis Univariado
+*   **Dataset**: 10,763 créditos y 23 variables (préstamos entre nov. 2024 y abr. 2026), sin filas duplicadas.
+*   **Distribución del target**: desbalance fuerte, **95.3% paga a tiempo y solo 4.7% no paga**. Por eso el Accuracy no sirve como métrica principal (predecir "todos pagan" ya da 95%) y se evalúan ROC-AUC y el Recall de la clase impago.
+*   **Outliers**: `salario_cliente` y `promedio_ingresos_datacredito` tienen colas derechas muy largas (mediana de salario ≈ 3 millones y máximo de 22 mil millones), lo que justifica imputar con la mediana.
+
+### 4.2 Análisis Bivariado
+*   **Edad**: los clientes de 18 a 30 años tienen la mayor tasa de impago (7.1%), frente a 3.7% en los mayores de 45.
+*   **Tipo laboral**: los independientes no pagan a tiempo con más frecuencia (5.5%) que los empleados (4.3%).
+*   **Tendencia de ingresos**: con ingresos decrecientes el impago sube a 6.3%, frente a 3.9% con ingresos crecientes.
+
+### 4.3 Calidad de Datos
+*   **Valores nulos**: `promedio_ingresos_datacredito` y `tendencia_ingresos` (~27%), `saldo_mora_codeudor` (590), `saldo_principal` (405), `saldo_mora` y `saldo_total` (156). Se imputa con la mediana (numéricas) y con la moda o una categoría constante (categóricas).
+*   **Inconsistencias**: `tendencia_ingresos` mezcla categorías de texto con valores numéricos sueltos; se trata como variable ordinal y los valores no reconocidos se codifican como desconocidos.
+
+### 4.4 ⚠️ Hallazgo clave: fuga de datos en `puntaje`
+La primera versión del modelo obtenía **Accuracy y AUC de 1.00**. Al analizar cada variable por separado, `puntaje` sola separaba perfectamente las clases (AUC = 1.00): todos los clientes que no pagaron tienen `puntaje` ≤ 62.7 y todos los que pagaron, ≥ 63.8. Eso indica que el puntaje se calcula **a partir del resultado del pago**, así que no estaría disponible al momento de otorgar el crédito. Se excluyó del modelo y de la API.
+
+---
+
+## 5. Metodología: Avance 2 (Ingeniería de Características y Modelado)
+
+Esta fase transformó los datos crudos en inputs matemáticos optimizados para algoritmos de Machine Learning.
+
+### 5.1 Pipeline de Preprocesamiento (`ft_engineering.py`)
+Se construyó un `ColumnTransformer` robusto:
+1.  **Numéricas (`StandardScaler`)**: Estandarización ($z = (x - \mu) / \sigma$) para que variables de gran magnitud (Ingresos) no dominen a las pequeñas (Tasa Interés).
+2.  **Categóricas Nominales (`OneHotEncoder`)**: Conversión a variables dummy binarias. Maneja categorías nuevas en producción (`handle_unknown='ignore'`).
+3.  **Categóricas Ordinales (`OrdinalEncoder`)**: Para `tendencia_ingresos`, preservando el orden lógico (Decreciente < Estable < Creciente).
+
+### 5.2 Selección de Modelos
+Se entrenaron y compararon tres familias de algoritmos:
+1.  **Regresión Logística**: Modelo lineal base, altamente interpretable.
+2.  **Árboles de Decisión**: Capta relaciones no lineales pero tiende al sobreajuste.
+3.  **Random Forest**: Modelo robusto que reduce varianza mediante el promedio de múltiples árboles.
+
+Los tres modelos se entrenan con `class_weight='balanced'` para compensar el desbalance de clases.
+
+### 5.3 Evaluación de Desempeño (set de prueba: 2,153 créditos, 102 impagos)
+
+| Modelo | ROC-AUC | Recall impago | Precision impago | Accuracy |
+|---|---|---|---|---|
+| **Regresión Logística** (modelo en producción) | **0.653** | **0.56** | 0.07 | 0.64 |
+| Árbol de Decisión | 0.629 | 0.66 | 0.07 | 0.56 |
+| Random Forest | 0.656 | 0.07 | 0.22 | 0.94 |
+
+*   **Lectura honesta**: sin la variable con fuga, la capacidad predictiva es **modesta (AUC ≈ 0.65)**. Las variables disponibles explican solo una parte del riesgo de impago.
+*   **Modelo elegido**: la **Regresión Logística** tiene un AUC casi igual al del Random Forest, pero detecta el 56% de los impagos (frente a 7% del Random Forest con umbral 0.5) y es interpretable. Por eso es el modelo que sirve la API (`save_model.py`).
+*   **Próximos pasos**: ajustar el umbral de decisión según el costo de un impago frente al de rechazar a un buen cliente, y sumar variables de comportamiento de pago previas al crédito.
+
+---
+
+## 6. Metodología: Avance 3 (Monitoreo y MLOps)
+
+La fase final y más crítica para la puesta en producción: asegurar que el modelo siga funcionando bien con el tiempo.
+
+### 6.1 Teoría de Detección de Drift (`model_monitoring.py`)
+
+El sistema implementa tres pruebas estadísticas rigurosas para detectar "Drift" (cambio) en los datos:
+
+1.  **Test de Kolmogorov-Smirnov (KS)**:
+    *   *Uso*: Variables Numéricas Continuas.
+    *   *Lógica*: Compara la distancia máxima entre las funciones de distribución acumulada (ECDF) de los datos de referencia y los datos actuales.
+    *   *Interpretación*: Si `p-value < 0.05`, rechazamos la hipótesis nula de que las distribuciones son iguales => **Drift Detectado**.
+
+2.  **Monitor de Estabilidad Poblacional (PSI - Population Stability Index)**:
+    *   *Uso*: Variables Numéricas y Categóricas.
+    *   *Lógica*: Mide cuánto se ha desplazado una distribución en términos de bins/percentiles.
+    *   *Umbrales*:
+        *   PSI < 0.1: Cambio insignificante (Verde).
+        *   PSI 0.1 - 0.25: Cambio moderado (Amarillo).
+        *   PSI > 0.25: Cambio drástico (Rojo).
+
+3.  **Test de Chi-Cuadrado ($\chi^2$)**:
+    *   *Uso*: Variables Categóricas Nominales.
+    *   *Lógica*: Compara la frecuencia observada de cada categoría en producción contra la esperada según el entrenamiento.
+
+### 6.2 Dashboard de Monitoreo (Streamlit)
+
+La aplicación `app.py` es el centro de comando para el equipo de MLOps.
+
+### Evidencia: Dashboard en funcionamiento con segmentadores (Limpiado y Optimizado)
+![Dashboard Principal (Dark Theme)](imagenes/dashboard_evidencia.png)
+
+*   **Estado de Salud del Modelo**: KPI principal que resume si el modelo es "Saludable", está en "Advertencia" o en estado "Crítico", basado en el % de variables con drift.
+*   **Análisis del Objetivo (Target Drift)**: Verifica si la proporción de Pagadores vs No Pagadores ha cambiado. Un cambio aquí es grave y requiere recalibración urgente.
+*   **Sistema de Alertas**: Notificaciones automáticas que identifican qué variables específicas están fallando (ej: "Drift detectado en `ingresos_anuales`").
+
+### 6.3 Interpretación de Gráficos Avanzados
+
+El dashboard incluye visualizaciones de nivel profesional para diagnóstico profundo:
+
+1.  **ECDF (Empirical Cumulative Distribution Function)**:
+    *   Muestra la probabilidad acumulada. Es superior al histograma porque no depende del tamaño de los "bins".
+    *   *Lectura*: Si la línea azul (Referencia) y roja (Actual) se separan significativamente, hay Drift.
+
+2.  **Violin Plots**:
+    *   Combina un Boxplot con una estimación de densidad de kernel (KDE).
+    *   *Lectura*: Permite ver si la forma de la distribución (bimodal, sesgada, curtosis) ha cambiado, no solo la media.
+
+3.  **Scatter 3D Interactivo**:
+    *   Permite explorar la relación entre tres variables numéricas simultáneamente (ej: Edad vs Ingresos vs Monto Préstamo), coloreadas por la clase objetivo.
+    *   *Lectura*: Ayuda a detectar si han aparecido nuevos clusters o regiones de datos en producción que no existían en entrenamiento.
+
+4.  **Galería de Variables (Sparklines)**:
+    *   Vista rápida de todas las variables monitoreadas en miniatura. Permite escanear visualmente anomalías en decenas de variables en segundos.
+
+---
+
+## 7. Manual de Instalación y Uso
+
+### Prerrequisitos
+*   Python 3.8 o superior.
+*   Git.
+
+### Pasos de Instalación
+
+1.  **Clonar el repositorio**:
+    ```bash
+    git clone https://github.com/tu-usuario/mlops_pipeline.git
+    cd mlops_pipeline
+    ```
+
+2.  **Crear entorno virtual (Recomendado)**:
+    ```bash
+    python -m venv venv
+    # En Windows:
+    .\venv\Scripts\activate
+    # En Mac/Linux:
+    source venv/bin/activate
+    ```
+
+3.  **Instalar dependencias**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+### Ejecución del Pipeline
+
+Para generar los artefactos del modelo y procesar los datos, ejecuta el script de modelo o el de features (esto guardará el `modelo_final.pkl` localmente):
+```bash
+python mlops_pipeline/src/save_model.py
+```
+
+### Lanzamiento del Dashboard Streamlit
+
+Para iniciar la interfaz de monitoreo:
+```bash
+streamlit run mlops_pipeline/src/app.py
+```
+Accede a la URL local (usualmente `http://localhost:8501`).
+
+### Despliegue de API con FastAPI
+
+Para levantar la API REST de predicción en tiempo real:
+```bash
+uvicorn mlops_pipeline.src.model_deploy:app --host 0.0.0.0 --port 8000 --reload
+```
+La documentación interactiva (Swagger) estará en `http://localhost:8000/docs`.
+
+### Evidencia: API Dockerizada Evaluándose
+![Swagger UI de FastAPI](imagenes/api_docker_swagger.png)
+
+### Evidencia: Prueba de Predicción a la API con Datos (Docker)
+![Prueba de Predicción Exitosa](imagenes/api_predict_test.png)
+
+### Contenedorización con Docker
+
+Para construir y ejecutar todo el proyecto (API) en un contenedor Docker:
+1. **Construir la imagen:**
+```bash
+docker build -t mlops-api .
+```
+2. **Ejecutar el contenedor:**
+```bash
+docker run -p 8000:8000 mlops-api
+```
+La API estará disponible en el puerto 8000.
+
+---
+
+## Extra Credit: Integración con SonarCloud
+
+Este repositorio cuenta con un pipeline de CI/CD extendido usando GitHub Actions que se integra con SonarCloud para realizar Análisis Estático de Código.
+
+El análisis de SonarCloud evalúa automáticamente:
+1. **Calidad del código:** Verificando mantenibilidad y deuda técnica.
+2. **Seguridad:** Detectando vulnerabilidades y Security Hotspots.
+3. **Cobertura de Pruebas:** Se han implementado pruebas en `tests/test_api.py` (usando `pytest` y `httpx`) que alcanzan una alta cobertura en la lógica de la API de predicción, reportado vía `coverage.xml`.
+4. **Integridad y Estilo:** Validando las convenciones contra las reglas y Quality Gates de SonarQube.
+
+![SonarCloud Dashboard](imagenes/sonarcloud_passed.png)
+
+---
+
+## 8. Conclusiones y Trabajo Futuro
+
+### Conclusiones
+*   Se ha logrado implementar un ciclo de vida completo de ML.
+*   La integración de métricas de Drift robustas (KS, PSI) protege al negocio de decisiones basadas en datos obsoletos.
+*   La visualización prioriza la claridad y la acción, permitiendo a stakeholders no técnicos entender la salud del modelo.
+
+### Roadmap (Próximos Pasos)
+1.  **Integración con API**: Desplegar el modelo como un servicio REST (FastAPI) para predicciones en tiempo real.
+2.  **Model Registry**: Integrar MLflow para trazar experimentos y versionar modelos binarios (`.pkl`).
+3.  **Reentrenamiento Automático**: Configurar un pipeline (Airflow/Prefect) que dispare el reentrenamiento automáticamente cuando el Dashboard detecte estado "Crítico".
+4.  **Base de Datos Real**: Conectar el pipeline a una base de datos SQL (PostgreSQL) o Datalake en lugar del archivo Excel estático.
+
+---
+
+## 9. Autores y Créditos
+
+**Desarrollado por:** Dody Salim Dueñas Remache
+**Curso:** Proyecto Integrador M5 - Ciencia de Datos y Machine Learning
+**Fecha:** Febrero 2026
+**Versión Actual:** v1.2.1 (Release Estable)
+
+---
+*Este documento es parte de la entrega final del proyecto y sirve como evidencia de la implementación técnica y metodológica.*
+
+---
+**🚀 Dashboard en vivo (Streamlit Cloud):** [https://proyectointegradorm5-xxarlr4zualnhay8t2dguv.streamlit.app/](https://proyectointegradorm5-xxarlr4zualnhay8t2dguv.streamlit.app/)
