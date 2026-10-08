@@ -3,9 +3,9 @@
   "name": "table4",
   "position": {
     "x": 30,
-    "y": 490,
+    "y": 563,
     "z": 5,
-    "height": 340,
+    "height": 394,
     "width": 1220,
     "tabOrder": 5
   },
@@ -206,6 +206,21 @@
               "expr": {
                 "Literal": {
                   "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "objects": {
+      "grid": [
+        {
+          "properties": {
+            "rowPadding": {
+              "expr": {
+                "Literal": {
+                  "Value": "6D"
                 }
               }
             }
