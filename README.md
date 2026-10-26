@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/dodysalim/Proyecto_Integrador_M5/actions"><img src="https://github.com/dodysalim/Proyecto_Integrador_M5/actions/workflows/ci.yml/badge.svg" alt="CI"></a> <img src="https://img.shields.io/badge/versión-1.1.0-8F7BFF?style=flat-square" alt="Versión 1.1.0"> <img src="https://img.shields.io/badge/licencia-MIT-30405B?style=flat-square" alt="Licencia MIT">
+<a href="https://github.com/dodysalim/Proyecto_Integrador_M5/actions"><img src="https://github.com/dodysalim/Proyecto_Integrador_M5/actions/workflows/ci.yml/badge.svg" alt="CI"></a> <img src="https://img.shields.io/badge/versión-2.0.0-8F7BFF?style=flat-square" alt="Versión 2.0.0"> <img src="https://img.shields.io/badge/licencia-MIT-30405B?style=flat-square" alt="Licencia MIT">
 </p>
 
 <p align="center"><a href="https://dodysalim.github.io/"><b>🌐 Portafolio</b></a> · <a href="docs/PORTFOLIO_CASE.md"><b>📄 Caso de estudio</b></a> · <a href="docs/VALIDATION.md"><b>✅ Verificación</b></a></p>
@@ -27,7 +27,7 @@
 | **🎯 Problema** | Evaluar un modelo de pago a tiempo y detectar cambios en los datos (data drift). |
 | **🛠️ Solución** | Pipeline MLOps: preprocesamiento, entrenamiento, API de predicción y monitoreo con KS, PSI y chi-cuadrado. |
 | **📈 Entregables** | API local con FastAPI, dashboard de monitoreo y Power BI de 5 páginas. |
-| **🧪 Calidad** | 14 pruebas automatizadas de lógica y API. |
+| **🧪 Calidad** | 26 pruebas automatizadas (lógica, API y dashboard); dashboard modular con principios SOLID. |
 | **👤 Autor** | Dody Dueñas Remache. |
 
 ## ❓ La pregunta de negocio
@@ -72,12 +72,13 @@ Base académica y componentes locales presentes. Se excluye puntaje por fuga de 
 | Ruta | Qué contiene |
 | --- | --- |
 | [mlops_pipeline/src/](mlops_pipeline/src/) | Preparación, entrenamiento, API y monitoreo |
+| [mlops_pipeline/src/dashboard/](mlops_pipeline/src/dashboard/) | Dashboard por capas: datos, segmentos, drift (lógica pura), gráficos y vistas |
 | [tests/](tests/) | Pruebas de lógica y API |
 | [requirements.txt](requirements.txt) | Dependencias |
 
 ## ✅ Calidad y alcance
 
-14 pruebas existentes aprobadas. Dashboard de monitoreo abrió sin excepciones con la base disponible.
+26 pruebas aprobadas, incluidas 12 de la lógica del dashboard. Dashboard de monitoreo abrió sin excepciones con la base disponible.
 
 El conjunto Actual de Power BI es el holdout, no datos de producción. Las métricas de drift precalculadas no se recalculan al filtrar clientes. El modelo requiere validación adicional para un uso operativo.
 
