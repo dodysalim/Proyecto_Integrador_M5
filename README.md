@@ -67,6 +67,20 @@ Base académica y componentes locales presentes. Se excluye puntaje por fuga de 
 
 [Archivos e instrucciones](powerbi/README.md). Descarga el repositorio completo y abre `powerbi/Abrir-PowerBI.bat` en Windows; después pulsa **Actualizar**. Incluye A4 horizontal a tamaño real (100 %) y diseño móvil vertical. El archivo `.pbip` necesita sus carpetas Report, SemanticModel y data.
 
+## 🏗️ Arquitectura
+
+```mermaid
+flowchart LR
+    XL[(Base_de_datos.xlsx)] --> FE["ft_engineering<br/>preprocesamiento"] --> TR["Entrenamiento<br/>y evaluación"] --> M[(Modelo .pkl)]
+    M --> API["FastAPI<br/>/predict"]
+    XL --> DATA["dashboard/data<br/>referencia vs. actual"]
+    subgraph dashboard
+        DATA --> SEG["segments<br/>filtros puros"] --> MON["ModelMonitor<br/>KS · PSI · Chi²"]
+        MON --> DR["drift<br/>estado de salud (puro)"] --> V["views<br/>salud · detalle · galería · correlaciones"]
+    end
+    V --> ST([Streamlit])
+```
+
 ## 🧭 Estructura del repositorio
 
 | Ruta | Qué contiene |
