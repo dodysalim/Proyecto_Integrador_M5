@@ -1,0 +1,13 @@
+{
+  "repo": "Proyecto_Integrador_M5",
+  "pages": 5,
+  "visuals": 35,
+  "tables": {
+    "Creditos": 10763,
+    "DriftNumerico": 18,
+    "DriftCategorico": 2,
+    "Distribuciones": 720,
+    "Correlaciones": 722
+  },
+  "status": "10.763 registros · Referencia/Actual son particiones 80/20 del dataset, no datos de producción"
+}

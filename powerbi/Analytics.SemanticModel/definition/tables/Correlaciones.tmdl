@@ -1,0 +1,35 @@
+table Correlaciones
+
+	column 'Dataset'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Dataset
+
+	column 'Variable'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Variable
+
+	column 'Variable2'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Variable2
+
+	column 'Correlacion'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: Correlacion
+
+	measure KPI_Correlacion = MAX(Correlaciones[Correlacion])
+		formatString: #,0.00
+		displayFolder: Indicadores
+
+	partition Correlaciones = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "Correlaciones.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"Dataset", type text}, {"Variable", type text}, {"Variable2", type text}, {"Correlacion", type number}}, "en-US")
+				in
+				    Typed

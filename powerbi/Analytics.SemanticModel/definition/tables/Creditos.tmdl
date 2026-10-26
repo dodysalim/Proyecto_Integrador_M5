@@ -1,0 +1,142 @@
+table Creditos
+
+	column 'tipo_credito'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: tipo_credito
+
+	column 'capital_prestado'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: capital_prestado
+
+	column 'plazo_meses'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: plazo_meses
+
+	column 'edad_cliente'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: edad_cliente
+
+	column 'tipo_laboral'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: tipo_laboral
+
+	column 'salario_cliente'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: salario_cliente
+
+	column 'total_otros_prestamos'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: total_otros_prestamos
+
+	column 'cuota_pactada'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: cuota_pactada
+
+	column 'puntaje_datacredito'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: puntaje_datacredito
+
+	column 'cant_creditosvigentes'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: cant_creditosvigentes
+
+	column 'huella_consulta'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: huella_consulta
+
+	column 'saldo_mora'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: saldo_mora
+
+	column 'saldo_total'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: saldo_total
+
+	column 'saldo_principal'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: saldo_principal
+
+	column 'saldo_mora_codeudor'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: saldo_mora_codeudor
+
+	column 'creditos_sectorFinanciero'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: creditos_sectorFinanciero
+
+	column 'creditos_sectorCooperativo'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: creditos_sectorCooperativo
+
+	column 'creditos_sectorReal'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: creditos_sectorReal
+
+	column 'promedio_ingresos_datacredito'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: promedio_ingresos_datacredito
+
+	column 'tendencia_ingresos'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: tendencia_ingresos
+
+	column 'Pago_atiempo'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: Pago_atiempo
+
+	column 'Dataset'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Dataset
+
+	column 'GrupoEdad'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: GrupoEdad
+
+	measure KPI_Registros = COUNTROWS(Creditos)
+		formatString: #,0.00
+		displayFolder: Indicadores
+
+	measure KPI_Capital = SUM(Creditos[capital_prestado])
+		formatString: #,0.00
+		displayFolder: Indicadores
+
+	measure KPI_Mora = SUM(Creditos[saldo_mora])
+		formatString: #,0.00
+		displayFolder: Indicadores
+
+	measure KPI_Edad = AVERAGE(Creditos[edad_cliente])
+		formatString: #,0.00
+		displayFolder: Indicadores
+
+	partition Creditos = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "Creditos.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"tipo_credito", type number}, {"capital_prestado", type number}, {"plazo_meses", type number}, {"edad_cliente", type number}, {"tipo_laboral", type text}, {"salario_cliente", type number}, {"total_otros_prestamos", type number}, {"cuota_pactada", type number}, {"puntaje_datacredito", type number}, {"cant_creditosvigentes", type number}, {"huella_consulta", type number}, {"saldo_mora", type number}, {"saldo_total", type number}, {"saldo_principal", type number}, {"saldo_mora_codeudor", type number}, {"creditos_sectorFinanciero", type number}, {"creditos_sectorCooperativo", type number}, {"creditos_sectorReal", type number}, {"promedio_ingresos_datacredito", type number}, {"tendencia_ingresos", type text}, {"Pago_atiempo", type number}, {"Dataset", type text}, {"GrupoEdad", type text}}, "en-US")
+				in
+				    Typed

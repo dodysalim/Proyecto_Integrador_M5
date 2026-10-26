@@ -1,0 +1,16 @@
+# Exclude temporary and intermediate files
+inspect_data.py
+old_notebook.ipynb
+pptx_content_utf8.txt
+pptx_content/
+Presentación del PI M5 (1).pptx
+Presentación del PI M5.pptx.pdf
+read_pptx.py
+test_eda.py
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+venv/
+.coverage
+coverage.xml
+mlops-venv/

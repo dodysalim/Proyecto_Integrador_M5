@@ -1,0 +1,35 @@
+table DriftCategorico
+
+	column 'Variable'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Variable
+
+	column 'Chi2'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: Chi2
+
+	column 'PValue'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: PValue
+
+	column 'Alerta'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: Alerta
+
+	measure KPI_Chi2 = MAX(DriftCategorico[Chi2])
+		formatString: #,0.00
+		displayFolder: Indicadores
+
+	partition DriftCategorico = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "DriftCategorico.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"Variable", type text}, {"Chi2", type number}, {"PValue", type number}, {"Alerta", type number}}, "en-US")
+				in
+				    Typed
