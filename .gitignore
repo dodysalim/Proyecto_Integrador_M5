@@ -14,3 +14,12 @@ venv/
 .coverage
 coverage.xml
 mlops-venv/
+
+# Mantenimiento
+*.py[cod]
+.venv/
+.env
+.pytest_cache/
+.DS_Store
+Thumbs.db
+*.log

@@ -367,7 +367,7 @@ if df_ref is not None:
             })
             
         summary_df = pd.DataFrame(summary_data)
-        st.dataframe(summary_df.style.applymap(lambda x: 'color: red; font-weight: bold' if 'DRIFT' in str(x) else 'color: green', subset=['Estado']), use_container_width=True)
+        st.dataframe(summary_df.style.map(lambda x: 'color: red; font-weight: bold' if 'DRIFT' in str(x) else 'color: green', subset=['Estado']), use_container_width=True)
         
     with tab_cat:
         st.subheader("Test de Chi-Cuadrado")
@@ -387,7 +387,7 @@ if df_ref is not None:
                     "Estado": "🔴 DRIFT" if is_drift else "🟢 OK"
                 })
             cat_df = pd.DataFrame(cat_data)
-            st.dataframe(cat_df.style.applymap(lambda x: 'color: red; font-weight: bold' if 'DRIFT' in str(x) else 'color: green', subset=['Estado']), use_container_width=True)
+            st.dataframe(cat_df.style.map(lambda x: 'color: red; font-weight: bold' if 'DRIFT' in str(x) else 'color: green', subset=['Estado']), use_container_width=True)
 
     with tab_viz:
         st.subheader("3.1. Comparación Visual Detallada")
