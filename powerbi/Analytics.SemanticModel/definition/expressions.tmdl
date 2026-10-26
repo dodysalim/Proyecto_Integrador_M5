@@ -1,2 +1,0 @@
-expression DataFolder = "C:\Dody-PowerBI\Proyecto_Integrador_M5\powerbi\data\" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
-	kind: m
