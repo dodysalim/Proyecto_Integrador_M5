@@ -4,6 +4,8 @@
 
 <p align="center"><b>Preparación, evaluación y monitoreo de un modelo de riesgo crediticio.</b></p>
 
+<p align="center"><a href="https://proyectointegradorm5-xxarlr4zualnhay8t2dguv.streamlit.app/"><b>Demo en vivo ↗</b></a></p>
+
 <p align="center">
 <img src="https://img.shields.io/badge/Henry_%C2%B7_M%C3%B3dulo_5-75E6CE?style=for-the-badge&labelColor=0b1222" alt="Henry · Módulo 5">
 </p>
